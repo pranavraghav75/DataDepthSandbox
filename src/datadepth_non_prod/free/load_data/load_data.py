@@ -1,4 +1,4 @@
-# LoadData.py
+import re
 
 class DataDepthLoader:
     """
@@ -23,40 +23,20 @@ class DataDepthLoader:
         self.preprocessed_data = None
         self.chosen_algorithms = []
 
-    def load_source(self):
-        """
-        Load the data from the specified source.
-        This method identifies the source type (e.g., file, API, database) and loads the data accordingly.
-        
-        Steps:
-        - Identify the type of source.
-        - Use appropriate loading mechanism (e.g., read CSV, fetch API data).
-        - Handle errors and ensure data is loaded correctly.
-        """
-        # Pseudocode for identifying and loading data
-        if self.source.endswith('.csv'):
-            self.data = self._load_csv(self.source)
-        elif self.source.endswith('.json'):
-            self.data = self._load_json(self.source)
-        elif self.source.endswith('.txt'):
-            self.data = self._load_txt(self.source)
-        # Extend to other formats like PDF, databases, web scraping, etc.
-        else:
-            raise ValueError("Unsupported data format")
+    # Existing methods (load_source, preprocess_data, etc.) ...
 
     def preprocess_data(self):
         """
-        Perform initial preprocessing including NLP tasks.
+        Perform initial preprocessing including NLP tasks and regex-based cleaning.
         This method allows modular selection of tasks like tokenization, lemmatization, etc.
-        
-        Steps:
-        - Check data type and apply corresponding preprocessing steps.
-        - Apply any user-specified preprocessing options from params.
         """
-        # Check if data is textual and apply NLP preprocessing
         if self._is_text_data(self.data):
+            self.preprocessed_data = self.data
+            # Apply regex-based cleaning before NLP tasks
+            if self.params.get('regex_cleaning', True):
+                self.preprocessed_data = self._apply_regex_cleaning(self.preprocessed_data)
             if self.params.get('tokenization', True):
-                self.preprocessed_data = self._tokenize(self.data)
+                self.preprocessed_data = self._tokenize(self.preprocessed_data)
             if self.params.get('lemmatization', True):
                 self.preprocessed_data = self._lemmatize(self.preprocessed_data)
             # Add more NLP utilities as needed
@@ -65,86 +45,64 @@ class DataDepthLoader:
             self.preprocessed_data = self._handle_missing_values(self.data)
             self.preprocessed_data = self._normalize_data(self.preprocessed_data)
 
-    def llm_chain_algorithm_selection(self):
+    def _apply_regex_cleaning(self, text_data):
         """
-        Use LLM chaining to determine the best algorithms for the next steps.
-        The LLM will analyze the data and select or suggest the most appropriate algorithms.
+        Apply regex-based cleaning to the text data.
         
         Steps:
-        - Feed the preprocessed data into the LLM.
-        - Use the LLM's output to determine which algorithms to apply.
-        - Store the chosen algorithms for later execution.
+        - Define regex patterns for removing unwanted characters, extracting information, etc.
+        - Apply regex substitutions and extractions to clean and structure the text.
         """
-        # Pseudocode for LLM chaining
-        self.chosen_algorithms = self._llm_analyze_and_suggest(self.preprocessed_data)
+        # Example: Remove all numbers from the text
+        text_data = re.sub(r'\d+', '', text_data)
 
-    def apply_chosen_algorithms(self):
+        # Example: Remove special characters
+        text_data = re.sub(r'[^\w\s]', '', text_data)
+
+        # Example: Extract headings (e.g., lines starting with 'Chapter' or 'Section')
+        headings = re.findall(r'^(Chapter|Section)\s+\d+', text_data, re.MULTILINE)
+        # Could store headings or use them to structure text
+
+        # Return cleaned and structured text
+        return text_data
+
+    def _extract_patterns(self, text_data, pattern):
         """
-        Apply the selected algorithms to the preprocessed data.
-        This step could include various machine learning or statistical models.
+        Extract specific patterns from the text using regex.
         
-        Steps:
-        - Loop through the list of chosen algorithms.
-        - Apply each algorithm to the preprocessed data.
-        - Store or return the results as needed.
-        """
-        results = {}
-        for algorithm in self.chosen_algorithms:
-            results[algorithm] = self._apply_algorithm(self.preprocessed_data, algorithm)
-        return results
-
-    def execute(self):
-        """
-        Execute the full pipeline: load, preprocess, select algorithms, and apply them.
+        Arguments:
+        - pattern (str): A regex pattern to search for in the text.
         
-        Steps:
-        - Load the data from the source.
-        - Preprocess the data according to its type.
-        - Use LLM to determine the best next steps.
-        - Apply the selected algorithms and return the results.
+        Returns:
+        - matches (list): A list of all matches found in the text.
         """
-        self.load_source()
-        self.preprocess_data()
-        self.llm_chain_algorithm_selection()
-        return self.apply_chosen_algorithms()
+        return re.findall(pattern, text_data)
 
-    # Private helper methods
-    def _load_csv(self, filepath):
-        # Pseudocode to load CSV data
-        pass
-
-    def _load_json(self, filepath):
-        # Pseudocode to load JSON data
-        pass
-
-    def _load_txt(self, filepath):
-        # Pseudocode to load TXT data
-        pass
-
+    # Utility methods for text data preprocessing
     def _is_text_data(self, data):
-        # Pseudocode to check if the data is primarily textual
+        # Implement logic to check if the data is primarily textual
         pass
 
     def _tokenize(self, text_data):
-        # Pseudocode to tokenize textual data
+        # Implement tokenization logic
         pass
 
     def _lemmatize(self, tokenized_data):
-        # Pseudocode to lemmatize tokens
+        # Implement lemmatization logic
         pass
 
     def _handle_missing_values(self, data):
-        # Pseudocode to handle missing values in non-text data
+        # Implement missing value handling
         pass
 
     def _normalize_data(self, data):
-        # Pseudocode to normalize data
+        # Implement data normalization
         pass
 
     def _llm_analyze_and_suggest(self, data):
-        # Pseudocode for LLM analysis and algorithm suggestion
+        # Implement LLM analysis and algorithm suggestion logic
         pass
 
     def _apply_algorithm(self, data, algorithm):
-        # Pseudocode to apply a specific algorithm to data
+        # Implement logic to apply a specific algorithm to the data
         pass
